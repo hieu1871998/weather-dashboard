@@ -170,7 +170,7 @@
 	}
 
 	body {
-		@apply bg-accent text-foreground;
+		@apply bg-accent text-foreground max-w-screen overflow-x-hidden;
 	}
 }
 
@@ -194,3 +194,6 @@
 	border: 3px solid transparent;
 	background-clip: padding-box;
 }
+
+@custom-variant data-dragging (&[data-dragging~="true"]);
+@custom-variant data-over (&[data-over~="true"]);

@@ -5,6 +5,7 @@ import { DailyUnits, HourlyUnits, WeatherForecast } from '@/types/weather';
 import { cn } from '@/utils/cn';
 import dayjs from 'dayjs';
 import { MapPinIcon } from 'lucide-react';
+import { WeatherForecastUpdater } from './weather-forecast.updater';
 
 interface WeatherForecastClientProps extends React.ComponentProps<'section'> {
 	forecast?: WeatherForecast;
@@ -45,7 +46,7 @@ export const WeatherForecastSectionClient = ({
 			className={cn('bg-background flex flex-col gap-5 rounded-xl border p-5', className)}
 			{...props}
 		>
-			<div className='flex justify-between'>
+			<div className='flex flex-col justify-between sm:flex-row'>
 				<div className='flex flex-col gap-1'>
 					<div className='flex items-start gap-2'>
 						<Icon className='text-5xl' />
@@ -63,7 +64,7 @@ export const WeatherForecastSectionClient = ({
 					</div>
 					<p>{`Feels like ${currentWeather?.apparent_temperature ? Math.round(currentWeather?.apparent_temperature) : 0} ${currentUnits?.apparent_temperature}`}</p>
 				</div>
-				<div className='text-right'>
+				<div className='sm:text-right'>
 					<p className='flex items-center gap-1'>
 						<MapPinIcon className='inline text-lg' />
 						<span className='text-2xl font-medium'>{location?.name}</span>
@@ -152,6 +153,8 @@ const DailyWeatherItem = ({ tempMin = 0, tempMax = 0, code, time, units }: Daily
 					<sup>{units?.temperature_2m_min}</sup>
 				</span>
 			</p>
+
+			<WeatherForecastUpdater />
 		</div>
 	);
 };

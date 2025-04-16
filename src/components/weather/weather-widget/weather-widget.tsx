@@ -4,23 +4,42 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { QueryKey, StorageKey } from '@/lib/constants';
 import { getIcon } from '@/lib/icons';
 import { getLocationById } from '@/services/geocoding';
-import { DailyUnits, WeatherForecast } from '@/types/weather';
+import { DailyUnits, GetWeatherForecastPayload, WeatherForecast } from '@/types/weather';
+import { useSortable } from '@dnd-kit/sortable';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useLocalStorage } from '@uidotdev/usehooks';
 import dayjs from 'dayjs';
-import { CloudRainIcon, DropletsIcon, TrashIcon, WindIcon } from 'lucide-react';
+import { CloudRainIcon, DropletsIcon, GripVerticalIcon, TrashIcon, WindIcon } from 'lucide-react';
+import { motion } from 'motion/react';
+import { CSSProperties } from 'react';
 import { Separator } from 'react-aria-components';
 
 interface WeatherWidgetProps {
-	index: number;
+	locationId: number;
 	forecast: WeatherForecast;
+	currentPayload: GetWeatherForecastPayload;
 }
 
-export const WeatherWidget = ({ forecast, index }: WeatherWidgetProps) => {
-	const [widgetPayloads, setWidgetPayloads] = useLocalStorage<FilterSchema[]>(StorageKey.WeatherWidgetList, []);
+export const WeatherWidget = ({ forecast, locationId, currentPayload }: WeatherWidgetProps) => {
+	const [, setWidgetPayloads] = useLocalStorage<FilterSchema[]>(StorageKey.WeatherWidgetList, []);
 
-	const currentWeather = forecast.current;
 	const currentUnits = forecast.current_units;
+	const currentWeather = forecast.current;
+
+	// const locationId = useMemo(() => widgetPayloads[index]?.locationId, [index, widgetPayloads]);
+
+	const dragId = `${forecast.latitude}${forecast.longitude}`;
+
+	const { attributes, listeners, setNodeRef, transform, isDragging, isOver, setActivatorNodeRef } = useSortable({
+		id: dragId,
+	});
+
+	const style = transform
+		? ({
+				'--translate-x': `${transform?.x ?? 0}px`,
+				'--translate-y': `${transform?.y ?? 0}px`,
+			} as CSSProperties)
+		: undefined;
 
 	const dailyWeather =
 		forecast.daily?.temperature_2m_max?.map((temp, index) => ({
@@ -30,8 +49,6 @@ export const WeatherWidget = ({ forecast, index }: WeatherWidgetProps) => {
 			time: forecast.daily?.time?.[index],
 		})) ?? [];
 	const dailyUnits = forecast.daily_units;
-
-	const locationId = widgetPayloads[index]?.locationId;
 
 	const { data: location, isLoading } = useQuery({
 		queryKey: [QueryKey.Location, locationId],
@@ -44,19 +61,38 @@ export const WeatherWidget = ({ forecast, index }: WeatherWidgetProps) => {
 	const queryClient = useQueryClient();
 
 	const handleDelete = () => {
+		queryClient.setQueryData<WeatherForecast[]>([QueryKey.WeatherForecast, currentPayload], old => {
+			if (Array.isArray(old)) {
+				return old.filter(item => item.latitude !== forecast.latitude && item.longitude !== forecast.longitude);
+			}
+
+			return old;
+		});
+
 		setWidgetPayloads(prev => {
 			const updatedPayloads = prev.filter(item => item.locationId !== locationId);
 
 			return updatedPayloads;
 		});
-
-		queryClient.invalidateQueries({
-			queryKey: [QueryKey.WeatherForecast],
-		});
 	};
 
 	return (
-		<div className='bg-background relative flex flex-col gap-2 rounded-xl border px-4 pt-3'>
+		<motion.div
+			ref={setNodeRef}
+			style={style}
+			layoutId={dragId}
+			layout
+			exit={{ opacity: 0, scale: 0 }}
+			animate={{ opacity: 1, scale: 1 }}
+			transition={{
+				duration: 0.3,
+				ease: [0, 0.4, 0.2, 1],
+			}}
+			{...attributes}
+			className='bg-background relative flex translate-x-[var(--translate-x)] translate-y-[var(--translate-y)] flex-col gap-2 rounded-xl border pt-3 data-dragging:z-10 data-dragging:scale-105 data-dragging:shadow-lg'
+			data-dragging={isDragging ? 'true' : undefined}
+			data-over={isOver ? 'true' : undefined}
+		>
 			<Button
 				iconOnly
 				size='xs'
@@ -66,56 +102,67 @@ export const WeatherWidget = ({ forecast, index }: WeatherWidgetProps) => {
 			>
 				<TrashIcon />
 			</Button>
-			<div className='flex justify-between'>
-				<div className='flex flex-col'>
-					{isLoading ? <Skeleton className='my-1 h-4 w-20' /> : <p>{location?.name}</p>}
-					<p className='text-accent-foreground text-xs'>{dayjs(currentWeather?.time).format('dddd, HH:mm')}</p>
-					<div className='flex items-center gap-2'>
-						<p>
-							<span className='text-4xl font-medium'>
-								{forecast.current?.temperature_2m ? Math.round(forecast.current?.temperature_2m) : 0}
-							</span>
-							<span className='align-top text-base'>{currentUnits?.temperature_2m}</span>
-						</p>
-						<Icon className='text-4xl' />
+			<div className='flex justify-between pr-4'>
+				<div className='flex gap-1'>
+					<button
+						ref={setActivatorNodeRef}
+						className='h-full cursor-grab rounded-l-xl rounded-r-none px-1'
+						{...listeners}
+					>
+						<GripVerticalIcon />
+					</button>
+					<div className='flex flex-col'>
+						{isLoading ? <Skeleton className='my-1 h-4 w-20' /> : <p className='font-medium'>{location?.name}</p>}
+						<p className='text-accent-foreground text-xs'>{dayjs(currentWeather?.time).format('dddd, HH:mm')}</p>
+						<div className='flex items-center gap-2'>
+							<p>
+								<span className='text-3xl font-medium'>
+									{forecast.current?.temperature_2m ? Math.round(forecast.current?.temperature_2m) : 0}
+								</span>
+								<span className='align-top text-base'>{currentUnits?.temperature_2m}</span>
+							</p>
+							<Icon className='text-3xl' />
+						</div>
 					</div>
 				</div>
 				<div className='flex flex-col'>
-					<div className='flex items-center justify-end gap-1 text-sm'>
+					<div className='flex items-center justify-end gap-1 text-xs'>
 						<p>
 							{forecast.current?.precipitation} {currentUnits?.precipitation}
 						</p>
 						<CloudRainIcon className='inline' />
 					</div>
-					<div className='flex items-center justify-end gap-1 text-sm'>
+					<div className='flex items-center justify-end gap-1 text-xs'>
 						<p>
 							{forecast.current?.relative_humidity_2m} {currentUnits?.relative_humidity_2m}
 						</p>
 						<DropletsIcon className='inline' />
 					</div>
-					<div className='flex items-center justify-end gap-1 text-sm'>
+					<div className='flex items-center justify-end gap-1 text-xs'>
 						<p>
 							{forecast.current?.wind_speed_10m} {currentUnits?.wind_speed_10m}
 						</p>
 						<WindIcon className='inline' />
 					</div>
-					<p className='text-right text-sm'>{`Feels like ${forecast.current?.apparent_temperature ? Math.round(forecast.current?.apparent_temperature) : 0} ${currentUnits?.apparent_temperature}`}</p>
+					<p className='text-right text-xs'>{`Feels like ${forecast.current?.apparent_temperature ? Math.round(forecast.current?.apparent_temperature) : 0} ${currentUnits?.apparent_temperature}`}</p>
 				</div>
 			</div>
 			<Separator />
-			<div className='flex w-full overflow-auto pb-1'>
-				{dailyWeather?.map(daily => (
-					<WeatherWidgetDailyItem
-						key={daily.time}
-						tempMax={daily.tempMax}
-						tempMin={daily.tempMin}
-						time={daily.time}
-						code={daily.code}
-						units={dailyUnits}
-					/>
-				))}
+			<div className='w-full px-2'>
+				<div className='flex w-full overflow-auto pb-1'>
+					{dailyWeather?.map(daily => (
+						<WeatherWidgetDailyItem
+							key={daily.time}
+							tempMax={daily.tempMax}
+							tempMin={daily.tempMin}
+							time={daily.time}
+							code={daily.code}
+							units={dailyUnits}
+						/>
+					))}
+				</div>
 			</div>
-		</div>
+		</motion.div>
 	);
 };
 
@@ -135,11 +182,8 @@ const WeatherWidgetDailyItem = ({
 	const Icon = getIcon(code);
 
 	return (
-		<div className='flex flex-col items-center gap-1 px-2'>
-			<div className='flex flex-col items-center'>
-				<p className='text-sm'>{dayjs(time).format('dddd')}</p>
-				<p className='text-accent-foreground text-xs'>{dayjs(time).format('DD/MM/YY')}</p>
-			</div>
+		<div className='flex flex-col items-center justify-center gap-1'>
+			<p className='w-20 text-center text-xs'>{dayjs(time).format('ddd, DD/MM')}</p>
 			<Icon className='text-3xl' />
 			<p className='flex space-x-1'>
 				<span className='inline-block text-sm'>

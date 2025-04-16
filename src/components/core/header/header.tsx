@@ -7,7 +7,7 @@ export const Header = (props: React.ComponentProps<'header'>) => {
 	return (
 		<AriaHeader
 			{...props}
-			className='bg-background sticky top-0 flex items-center rounded-xl border px-5 py-2'
+			className='bg-background sticky top-2 z-50 flex items-center rounded-xl border px-5 py-2'
 		>
 			<div className='flex h-full w-full items-center justify-between'>
 				<span className='text-xl font-bold'>Weather Dashboard</span>

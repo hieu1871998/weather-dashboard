@@ -10,11 +10,11 @@ const Home = async ({ searchParams }: { searchParams: Promise<Record<string, str
 	await filterCache.parse(searchParams);
 
 	return (
-		<main className='container flex w-full gap-2 py-2'>
-			<div className='grid h-fit w-full gap-2 2xl:grid-cols-6'>
-				<Suspense fallback={<WeatherForecastSectionSkeleton className='col-span-2' />}>
+		<main className='flex w-full max-w-[120rem] gap-2 py-4 transition-all duration-300'>
+			<div className='3xl:grid-cols-6 grid h-fit w-full grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5'>
+				<Suspense fallback={<WeatherForecastSectionSkeleton className='grid-cols-1 sm:col-span-2' />}>
 					<ErrorBoundary>
-						<WeatherForecastSection className='col-span-2 row-span-2' />
+						<WeatherForecastSection className='row-span-2 grid-cols-1 sm:col-span-2' />
 					</ErrorBoundary>
 				</Suspense>
 				<FilterSection />

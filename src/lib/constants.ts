@@ -95,6 +95,7 @@ export const CURRENT_WEATHER_VARIABLES = [
 
 export enum QueryKey {
 	WeatherForecast = 'weather-forecast',
+	WeatherForecastByLocation = 'weather-forecast-by-location',
 	Location = 'location',
 }
 
@@ -103,3 +104,5 @@ export enum StorageKey {
 }
 
 export const REFETCH_INTERVAL = 5 * 60 * 1000; // 5 minutes
+
+export const WEATHER_FORECAST_TAG = 'weather-forecast';

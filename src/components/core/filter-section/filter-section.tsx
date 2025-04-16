@@ -74,11 +74,11 @@ export const FilterSection = ({ className, ...props }: FormProps) => {
 
 	return (
 		<Form
-			className={cn('bg-background flex flex-col justify-between gap-3 rounded-xl border p-4', className)}
+			className={cn('bg-background flex flex-col justify-between gap-2 rounded-xl border p-4', className)}
 			onSubmit={onSubmit(handleSubmit)}
 			{...props}
 		>
-			<div className='grid gap-3 2xl:grid-cols-3'>
+			<div className='grid gap-2 2xl:grid-cols-3'>
 				<LocationSearch
 					label='Location'
 					className='col-span-3'
@@ -103,7 +103,6 @@ export const FilterSection = ({ className, ...props }: FormProps) => {
 							validationBehavior='aria'
 							isInvalid={invalid}
 							label='Latitude'
-							showControls
 							placeholder='Latitude'
 						/>
 					)}
@@ -122,7 +121,6 @@ export const FilterSection = ({ className, ...props }: FormProps) => {
 							minValue={-180}
 							maxValue={180}
 							step={0.1}
-							showControls
 							errorMessage={error?.message}
 							validationBehavior='aria'
 							isInvalid={invalid}
@@ -145,9 +143,8 @@ export const FilterSection = ({ className, ...props }: FormProps) => {
 							errorMessage={error?.message}
 							validationBehavior='aria'
 							isInvalid={invalid}
-							label='Forecast Days'
+							label='Days'
 							placeholder='Days'
-							showControls
 						/>
 					)}
 				/>
@@ -157,13 +154,13 @@ export const FilterSection = ({ className, ...props }: FormProps) => {
 					type='submit'
 					isLoading={isPending}
 				>
-					Update main widget
+					Update
 				</Button>
 				<Button
 					variant='outline'
 					onPress={handleAddWidget}
 				>
-					Add to widgets
+					Add widget
 				</Button>
 			</div>
 		</Form>
