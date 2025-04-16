@@ -65,7 +65,7 @@ export const WeatherForecastSectionClient = ({
 					<p>{`Feels like ${currentWeather?.apparent_temperature ? Math.round(currentWeather?.apparent_temperature) : 0} ${currentUnits?.apparent_temperature}`}</p>
 				</div>
 				<div className='sm:text-right'>
-					<p className='flex items-center justify-end gap-1'>
+					<p className='align-end flex items-center gap-1'>
 						<MapPinIcon className='inline text-lg' />
 						<span className='text-2xl font-medium'>{location?.name}</span>
 					</p>
@@ -100,6 +100,8 @@ export const WeatherForecastSectionClient = ({
 					/>
 				))}
 			</div>
+
+			<WeatherForecastUpdater />
 		</section>
 	);
 };
@@ -157,8 +159,6 @@ const DailyWeatherItem = ({ tempMin = 0, tempMax = 0, code, time, units }: Daily
 					<sup>{units?.temperature_2m_min}</sup>
 				</span>
 			</p>
-
-			<WeatherForecastUpdater />
 		</div>
 	);
 };
