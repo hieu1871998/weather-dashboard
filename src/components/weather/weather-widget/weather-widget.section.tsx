@@ -1,7 +1,7 @@
 'use client';
 
 import { FilterSchema } from '@/components/core/filter-section/filter-section.schema';
-import { QueryKey, REFETCH_INTERVAL, StorageKey } from '@/lib/constants';
+import { QueryKey, StorageKey } from '@/lib/constants';
 import { getWeatherForecast } from '@/services/weather';
 import { GetWeatherForecastPayload } from '@/types/weather';
 import { reorderArray } from '@/utils/array';
@@ -19,13 +19,12 @@ import {
 import { rectSortingStrategy, SortableContext, sortableKeyboardCoordinates } from '@dnd-kit/sortable';
 import { keepPreviousData, useQuery, useQueryClient } from '@tanstack/react-query';
 import { AnimatePresence } from 'motion/react';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import { WeatherWidget } from './weather-widget';
 import { WeatherWidgetSkeleton } from './weather-widget.skeleton';
 
 export const WeatherWidgetSection = () => {
 	const [widgetPayloads, setWidgetPayloads] = useClientLocalStorage<FilterSchema[]>(StorageKey.WeatherWidgetList, []);
-	const [refetchInterval, setRefetchInterval] = useState<number | false>(false);
 	const queryClient = useQueryClient();
 
 	// Refs to track timers and initialization across re-renders
@@ -57,6 +56,12 @@ export const WeatherWidgetSection = () => {
 
 	// Stringify payload for comparison
 	const payloadString = JSON.stringify(payload);
+
+	const { data, isLoading, refetch } = useQuery({
+		queryKey: [QueryKey.WeatherForecast, payload],
+		queryFn: () => getWeatherForecast(payload),
+		placeholderData: keepPreviousData,
+	});
 
 	// Setup synchronized refresh with clock time
 	useEffect(() => {
@@ -103,26 +108,22 @@ export const WeatherWidgetSection = () => {
 
 		// Initial manual refresh
 		console.log('[WeatherWidgetSection] Initial refresh at:', new Date().toLocaleTimeString());
-		queryClient.invalidateQueries({
-			queryKey: [QueryKey.WeatherForecast, payload],
-		});
+		refetch();
 
-		// Reset refetchInterval to false to prevent React Query's automatic refetching
-		setRefetchInterval(false);
+		// Setup recurring refresh function
+		const setupRecurringRefresh = () => {
+			// Perform the refetch
+			console.log('[WeatherWidgetSection] Performing scheduled refresh at:', new Date().toLocaleTimeString());
+			refetch();
+
+			// Calculate time to next refresh and set up next timeout
+			const timeToNext = calculateNextRefreshTime();
+			timeoutRef.current = setTimeout(setupRecurringRefresh, timeToNext);
+		};
 
 		// Set timeout to align with the next 15-minute mark
 		const timeToNext = calculateNextRefreshTime();
-		timeoutRef.current = setTimeout(() => {
-			// Once aligned, manually trigger a refresh
-			console.log('[WeatherWidgetSection] First aligned refresh at:', new Date().toLocaleTimeString());
-			queryClient.invalidateQueries({
-				queryKey: [QueryKey.WeatherForecast, payload],
-			});
-
-			// Then set the regular interval
-			setRefetchInterval(REFETCH_INTERVAL);
-			console.log('[WeatherWidgetSection] Set regular interval of', REFETCH_INTERVAL, 'ms');
-		}, timeToNext);
+		timeoutRef.current = setTimeout(setupRecurringRefresh, timeToNext);
 
 		return () => {
 			if (timeoutRef.current) {
@@ -131,18 +132,7 @@ export const WeatherWidgetSection = () => {
 				timeoutRef.current = null;
 			}
 		};
-	}, [payload, payloadString, queryClient]); // Only depend on stringified payload
-
-	const { data, isLoading } = useQuery({
-		queryKey: [QueryKey.WeatherForecast, payload],
-		queryFn: () => getWeatherForecast(payload),
-		refetchInterval: refetchInterval,
-		placeholderData: keepPreviousData,
-		// Add this to prevent unnecessary background refetches
-		refetchOnWindowFocus: false,
-		refetchOnMount: false,
-		refetchOnReconnect: false,
-	});
+	}, [payload, payloadString, refetch]); // Added refetch to dependencies
 
 	const forecasts = data !== undefined ? (Array.isArray(data) ? data : [data]) : [];
 
