@@ -53,7 +53,8 @@ const SheetContent = forwardRef<React.ComponentRef<typeof Modal>, SheetContentPr
 					<>
 						<Button
 							className='ring-offset-background focus:ring-ring entering:bg-secondary absolute top-4 right-4 rounded-sm opacity-70 transition-opacity hover:opacity-100 focus:ring-2 focus:ring-offset-2 focus:outline-none disabled:pointer-events-none'
-							size='icon'
+							size='xs'
+							iconOnly
 							variant='ghost'
 						>
 							<XIcon className='h-4 w-4' />
