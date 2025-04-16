@@ -61,6 +61,7 @@ export const WeatherWidgetSection = () => {
 		queryKey: [QueryKey.WeatherForecast, payload],
 		queryFn: () => getWeatherForecast(payload),
 		placeholderData: keepPreviousData,
+		refetchOnWindowFocus: false,
 	});
 
 	// Setup synchronized refresh with clock time

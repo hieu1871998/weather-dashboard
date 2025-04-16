@@ -56,6 +56,7 @@ export const WeatherWidget = ({ forecast, locationId, currentPayload }: WeatherW
 		queryKey: [QueryKey.Location, locationId],
 		queryFn: () => getLocationById({ id: locationId }),
 		enabled: !!locationId,
+		refetchOnWindowFocus: false,
 	});
 
 	const Icon = getIcon(currentWeather?.weather_code, currentWeather?.is_day);
