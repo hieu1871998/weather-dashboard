@@ -5,8 +5,8 @@ import { NumberField } from '@/components/ui/number-field/number-field';
 import { StorageKey } from '@/lib/constants';
 import { Location } from '@/types/geocoding';
 import { cn } from '@/utils/cn';
+import { useClientLocalStorage } from '@/utils/use-client-storage';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useLocalStorage } from '@uidotdev/usehooks';
 import { useQueryStates } from 'nuqs';
 import { useTransition } from 'react';
 import { Form, FormProps } from 'react-aria-components';
@@ -24,7 +24,7 @@ export const FilterSection = ({ className, ...props }: FormProps) => {
 		startTransition,
 	});
 
-	const [, setWidgetPayloads] = useLocalStorage<FilterSchema[]>(StorageKey.WeatherWidgetList, []);
+	const [, setWidgetPayloads] = useClientLocalStorage<FilterSchema[]>(StorageKey.WeatherWidgetList, []);
 
 	const {
 		handleSubmit: onSubmit,

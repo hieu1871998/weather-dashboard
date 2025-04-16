@@ -5,6 +5,7 @@ import { QueryKey, REFETCH_INTERVAL, StorageKey } from '@/lib/constants';
 import { getWeatherForecast } from '@/services/weather';
 import { GetWeatherForecastPayload } from '@/types/weather';
 import { reorderArray } from '@/utils/array';
+import { useClientLocalStorage } from '@/utils/use-client-storage';
 import {
 	closestCenter,
 	DndContext,
@@ -17,14 +18,20 @@ import {
 } from '@dnd-kit/core';
 import { rectSortingStrategy, SortableContext, sortableKeyboardCoordinates } from '@dnd-kit/sortable';
 import { keepPreviousData, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useLocalStorage } from '@uidotdev/usehooks';
 import { AnimatePresence } from 'motion/react';
-import { useMemo } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { WeatherWidget } from './weather-widget';
 import { WeatherWidgetSkeleton } from './weather-widget.skeleton';
 
 export const WeatherWidgetSection = () => {
-	const [widgetPayloads, setWidgetPayloads] = useLocalStorage<FilterSchema[]>(StorageKey.WeatherWidgetList, []);
+	const [widgetPayloads, setWidgetPayloads] = useClientLocalStorage<FilterSchema[]>(StorageKey.WeatherWidgetList, []);
+	const [refetchInterval, setRefetchInterval] = useState<number | false>(false);
+	const queryClient = useQueryClient();
+
+	// Refs to track timers and initialization across re-renders
+	const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+	const hasInitializedRef = useRef(false);
+	const lastPayloadRef = useRef<string>('');
 
 	const payload: GetWeatherForecastPayload = useMemo(
 		() => ({
@@ -48,11 +55,93 @@ export const WeatherWidgetSection = () => {
 		[widgetPayloads]
 	);
 
+	// Stringify payload for comparison
+	const payloadString = JSON.stringify(payload);
+
+	// Setup synchronized refresh with clock time
+	useEffect(() => {
+		// Check if payload has changed significantly enough to warrant re-initialization
+		const payloadChanged = lastPayloadRef.current !== payloadString;
+
+		// If this is a re-render with the same payload and we've already initialized, skip
+		if (hasInitializedRef.current && !payloadChanged) {
+			return;
+		}
+
+		// Clean up previous timer if it exists
+		if (timeoutRef.current) {
+			console.log('[WeatherWidgetSection] Cleaning up previous timer due to payload change');
+			clearTimeout(timeoutRef.current);
+			timeoutRef.current = null;
+		}
+
+		// Update the last payload ref
+		lastPayloadRef.current = payloadString;
+		hasInitializedRef.current = true;
+
+		// Calculate time until next 15-minute mark
+		const calculateNextRefreshTime = () => {
+			const now = new Date();
+			const minutes = now.getMinutes();
+			const seconds = now.getSeconds();
+			const milliseconds = now.getMilliseconds();
+
+			// Calculate minutes until next 15-minute mark (0, 15, 30, 45)
+			const minutesToNext = 15 - (minutes % 15);
+
+			// Convert everything to milliseconds
+			const timeToNext = minutesToNext * 60 * 1000 - seconds * 1000 - milliseconds;
+
+			// Debug info to verify timing calculations
+			console.log('[WeatherWidgetSection] Current time:', now.toLocaleTimeString());
+			console.log('[WeatherWidgetSection] Minutes to next 15-minute mark:', minutesToNext);
+			console.log('[WeatherWidgetSection] Time until next refresh:', timeToNext, 'ms');
+			console.log('[WeatherWidgetSection] Next refresh at:', new Date(now.getTime() + timeToNext).toLocaleTimeString());
+
+			return timeToNext;
+		};
+
+		// Initial manual refresh
+		console.log('[WeatherWidgetSection] Initial refresh at:', new Date().toLocaleTimeString());
+		queryClient.invalidateQueries({
+			queryKey: [QueryKey.WeatherForecast, payload],
+		});
+
+		// Reset refetchInterval to false to prevent React Query's automatic refetching
+		setRefetchInterval(false);
+
+		// Set timeout to align with the next 15-minute mark
+		const timeToNext = calculateNextRefreshTime();
+		timeoutRef.current = setTimeout(() => {
+			// Once aligned, manually trigger a refresh
+			console.log('[WeatherWidgetSection] First aligned refresh at:', new Date().toLocaleTimeString());
+			queryClient.invalidateQueries({
+				queryKey: [QueryKey.WeatherForecast, payload],
+			});
+
+			// Then set the regular interval
+			setRefetchInterval(REFETCH_INTERVAL);
+			console.log('[WeatherWidgetSection] Set regular interval of', REFETCH_INTERVAL, 'ms');
+		}, timeToNext);
+
+		return () => {
+			if (timeoutRef.current) {
+				console.log('[WeatherWidgetSection] Cleaning up timer on unmount');
+				clearTimeout(timeoutRef.current);
+				timeoutRef.current = null;
+			}
+		};
+	}, [payload, payloadString, queryClient]); // Only depend on stringified payload
+
 	const { data, isLoading } = useQuery({
 		queryKey: [QueryKey.WeatherForecast, payload],
 		queryFn: () => getWeatherForecast(payload),
-		refetchInterval: REFETCH_INTERVAL,
+		refetchInterval: refetchInterval,
 		placeholderData: keepPreviousData,
+		// Add this to prevent unnecessary background refetches
+		refetchOnWindowFocus: false,
+		refetchOnMount: false,
+		refetchOnReconnect: false,
 	});
 
 	const forecasts = data !== undefined ? (Array.isArray(data) ? data : [data]) : [];
@@ -66,8 +155,6 @@ export const WeatherWidgetSection = () => {
 	const sensors = useSensors(mouseSensor, keyboardSensor, touchSensor);
 
 	const sortableItems = forecasts.map(forecast => `${forecast?.latitude}${forecast?.longitude}`);
-
-	const queryClient = useQueryClient();
 
 	const handleDragEnd = (event: DragEndEvent) => {
 		const { active, over } = event;

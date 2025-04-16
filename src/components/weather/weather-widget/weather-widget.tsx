@@ -1,3 +1,5 @@
+'use client';
+
 import { FilterSchema } from '@/components/core/filter-section/filter-section.schema';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -5,9 +7,9 @@ import { QueryKey, StorageKey } from '@/lib/constants';
 import { getIcon } from '@/lib/icons';
 import { getLocationById } from '@/services/geocoding';
 import { DailyUnits, GetWeatherForecastPayload, WeatherForecast } from '@/types/weather';
+import { useClientLocalStorage } from '@/utils/use-client-storage';
 import { useSortable } from '@dnd-kit/sortable';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { useLocalStorage } from '@uidotdev/usehooks';
 import dayjs from 'dayjs';
 import { CloudRainIcon, DropletsIcon, GripVerticalIcon, TrashIcon, WindIcon } from 'lucide-react';
 import { motion } from 'motion/react';
@@ -21,7 +23,7 @@ interface WeatherWidgetProps {
 }
 
 export const WeatherWidget = ({ forecast, locationId, currentPayload }: WeatherWidgetProps) => {
-	const [, setWidgetPayloads] = useLocalStorage<FilterSchema[]>(StorageKey.WeatherWidgetList, []);
+	const [, setWidgetPayloads] = useClientLocalStorage<FilterSchema[]>(StorageKey.WeatherWidgetList, []);
 
 	const currentUnits = forecast.current_units;
 	const currentWeather = forecast.current;

@@ -6,6 +6,8 @@ A modern, responsive weather dashboard application built with Next.js that provi
 
 ![Weather Dashboard Tablet](/public/weather-dashboard-preview-tablet.jpeg)
 
+![Weather Dashboard Tablet Horizontal](/public/weather-dashboard-preview-tablet-horizontal.jpeg)
+
 ![Weather Dashboard Mobile](/public/weather-dashboard-preview-phone.jpeg)
 
 ## Demo
@@ -37,7 +39,7 @@ Check out the live demo: [Weather Dashboard](https://weather-dashboard-rho-beige
 
 ### Prerequisites
 
-- Node.js 18.0 or later
+- Node.js v18.18 or later (used v22.14)
 - pnpm (recommended) or npm or yarn
 
 ### Installation
