@@ -1,36 +1,86 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Weather Dashboard
+
+A modern, responsive weather dashboard application built with Next.js that provides real-time weather information and forecasts.
+
+![Weather Dashboard](/public/weather-dashboard-preview.jpeg)
+
+![Weather Dashboard Tablet](/public/weather-dashboard-preview-tablet.jpeg)
+
+![Weather Dashboard Mobile](/public/weather-dashboard-preview-phone.jpeg)
+
+## Demo
+
+Check out the live demo: [Weather Dashboard](https://weather-dashboard-rho-beige.vercel.app/)
+
+## Features
+
+- **Real-time Weather Data**: Current temperature, humidity, wind speed, precipitation, and more
+- **Weather Forecast**: Daily and hourly weather forecasts
+- **Weather Widgets**: Drag-and-drop customizable weather widgets for multiple locations
+- **Responsive Design**: Works on desktop, tablet, and mobile devices
+- **Filter System**: Filter weather data by location and forecast days
+- **Auto Refresh**: Automatic data updates every 15 minutes
+- **Light/Dark Mode**: Theme toggle for different viewing preferences
+- **Location Search**: Search for locations to get their weather data
+
+## Technology Stack
+
+- **Frontend**: Next.js 15 with React 19
+- **Styling**: Tailwind CSS with custom UI components
+- **Data Fetching**: React Query with server-side caching
+- **API Integration**: Open-Meteo API for weather data
+- **Drag and Drop**: DND Kit for draggable weather widgets
+- **Date Handling**: Day.js for date and time formatting
+- **State Management**: React Hooks and Context API
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
+
+- Node.js 18.0 or later
+- pnpm (recommended) or npm or yarn
+
+### Installation
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+# Clone the repository
+git clone https://github.com/yourusername/weather-report.git
+cd weather-report
+
+# Install dependencies
+pnpm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Running the Development Server
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+# Start the development server
+pnpm dev
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Open [http://localhost:3000](http://localhost:3000) with your browser to see the application.
 
-## Learn More
+## Project Structure
 
-To learn more about Next.js, take a look at the following resources:
+The project follows a modular architecture with the following structure:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- `src/components/weather`: Weather-related components
+  - `weather-forecast`: Main forecast section with detailed weather information
+  - `weather-widget`: Compact weather widgets showing key metrics
+- `src/components/core`: Core UI components like error boundaries and filters
+- `src/components/ui`: Reusable UI components (buttons, cards, fields, etc.)
+- `src/services`: API service functions for weather data and geocoding
+- `src/lib`: Utilities and constants
+- `src/types`: TypeScript type definitions
+- `src/utils`: Helper functions
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Key Components
 
-## Deploy on Vercel
+- **WeatherForecastSection**: Main component displaying detailed weather forecast
+- **WeatherWidgetSection**: Collection of customizable weather widgets
+- **FilterSection**: Allows filtering weather data by various parameters
+- **WeatherForecastUpdater**: Handles automatic data refreshing
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## License
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+This project is licensed under the MIT License - see the LICENSE file for details.

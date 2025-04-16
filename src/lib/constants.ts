@@ -103,6 +103,6 @@ export enum StorageKey {
 	WeatherWidgetList = 'weather-widget-list',
 }
 
-export const REFETCH_INTERVAL = 5 * 60 * 1000; // 5 minutes
+export const REFETCH_INTERVAL = 15 * 60 * 1000; // 15 minutes
 
 export const WEATHER_FORECAST_TAG = 'weather-forecast';

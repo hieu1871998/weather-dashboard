@@ -65,7 +65,7 @@ export const WeatherForecastSectionClient = ({
 					<p>{`Feels like ${currentWeather?.apparent_temperature ? Math.round(currentWeather?.apparent_temperature) : 0} ${currentUnits?.apparent_temperature}`}</p>
 				</div>
 				<div className='sm:text-right'>
-					<p className='flex items-center gap-1'>
+					<p className='flex items-center justify-end gap-1'>
 						<MapPinIcon className='inline text-lg' />
 						<span className='text-2xl font-medium'>{location?.name}</span>
 					</p>
@@ -77,7 +77,7 @@ export const WeatherForecastSectionClient = ({
 					</p>
 				</div>
 			</div>
-			<div className='bg-muted flex h-20 w-full items-center overflow-auto rounded-lg border p-2'>
+			<div className='bg-muted flex h-25 w-full items-center overflow-auto rounded-lg border p-2'>
 				{hourlyForecast.map(item => (
 					<HourlyWeatherItem
 						key={item.time}
@@ -108,15 +108,19 @@ const HourlyWeatherItem = ({
 	temp,
 	time,
 	units,
+	code,
 }: {
 	temp: number;
 	code?: number;
 	time?: string;
 	units?: Partial<HourlyUnits>;
 }) => {
+	const Icon = getIcon(code);
+
 	return (
 		<div className='flex min-w-12 flex-col items-center border-r p-1 last-of-type:border-none'>
 			<p className='text-accent-foreground text-xs leading-tight'>{dayjs(time).format('HH:mm')}</p>
+			<Icon className='mt-1' />
 			<p>
 				<span className='text-lg font-medium'>{Math.round(temp)}</span>
 				<sup className='text-xs'>{units?.temperature_2m}</sup>
