@@ -16,7 +16,11 @@ export async function fetcher<T>(url: string, options?: RequestInit): Promise<T>
 			errorData = await response.text();
 		}
 
-		throw new Error(`Fetch error: ${response.status} ${response.statusText} — ${JSON.stringify(errorData)}`);
+		throw new Error(
+			`Fetch error: ${url}
+			Status: ${response.status} ${response.statusText}
+			Data: ${JSON.stringify(errorData)}`
+		);
 	}
 
 	// Parse and return response as type T

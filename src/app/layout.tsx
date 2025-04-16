@@ -24,16 +24,14 @@ export const RootLayout = async ({
 		<html
 			lang='en'
 			className='h-full'
+			suppressHydrationWarning
 		>
 			<body
-				className={`${generalSans.variable} ${generalSans.className} ${geistMono.variable} flex h-full flex-col antialiased`}
+				className={`${generalSans.variable} ${generalSans.className} ${geistMono.variable} flex h-full flex-col p-2 antialiased`}
 			>
 				<Providers>
 					<Header />
-					<div className='bg-accent flex min-w-0 flex-1'>
-						{/* <Sidebar /> */}
-						{children}
-					</div>
+					<div className='flex min-w-0 flex-1'>{children}</div>
 				</Providers>
 			</body>
 		</html>

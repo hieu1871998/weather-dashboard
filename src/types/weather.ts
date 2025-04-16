@@ -57,7 +57,7 @@ export interface CurrentUnits {
 }
 
 export interface Daily {
-	time: Date[];
+	time: string[];
 	et0_fao_evapotranspiration: number[];
 	shortwave_radiation_sum: number[];
 	wind_direction_10m_dominant: number[];
@@ -354,6 +354,7 @@ type CurrentWeatherVariable =
 	| 'cloud_cover'
 	| 'pressure_msl'
 	| 'surface_pressure'
+	| 'weather_code'
 	| 'wind_direction_10m'
 	| 'wind_speed_10m'
 	| 'wind_gusts_10m';
@@ -362,8 +363,8 @@ type TemperatureUnit = 'celcius' | 'fahrenheit';
 type PrecipitationUnit = 'millimeter' | 'inch';
 
 export interface GetWeatherForecastPayload {
-	latitude: number;
-	longitude: number;
+	latitude: number[];
+	longitude: number[];
 	daily?: DailyWeatherVariable[];
 	hourly?: HourlyWeatherVariable[];
 	current?: CurrentWeatherVariable[];
@@ -374,4 +375,6 @@ export interface GetWeatherForecastPayload {
 	temperature_unit?: TemperatureUnit;
 	/** Default: `millimeter` */
 	precipitation_unit?: PrecipitationUnit;
+	temporal_resolution?: 'hourly_1' | 'hourly_3' | 'hourly_6' | 'native';
+	forecast_hours?: number;
 }

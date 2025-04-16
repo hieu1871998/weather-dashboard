@@ -1,7 +1,13 @@
 'use client';
 
-import { forwardRef } from 'react';
-import { Button as AriaButton, ButtonProps as AriaButtonProps, composeRenderProps } from 'react-aria-components';
+import { LoaderCircleIcon } from 'lucide-react';
+import { forwardRef, ReactNode } from 'react';
+import {
+	Button as AriaButton,
+	ButtonProps as AriaButtonProps,
+	ButtonRenderProps,
+	composeRenderProps,
+} from 'react-aria-components';
 import { tv, VariantProps } from 'tailwind-variants';
 
 const buttonVariants = tv({
@@ -56,17 +62,41 @@ const buttonVariants = tv({
 
 type ButtonVariants = VariantProps<typeof buttonVariants>;
 
-export interface ButtonProps extends AriaButtonProps, ButtonVariants {}
+export interface ButtonProps extends AriaButtonProps, ButtonVariants {
+	isLoading?: boolean;
+}
 
-export const Button = forwardRef<HTMLButtonElement, ButtonProps>(({ variant, size, ...props }, ref) => {
-	return (
-		<AriaButton
-			{...props}
-			className={composeRenderProps(props.className, (className, props) =>
-				buttonVariants({ ...props, variant, size, className })
-			)}
-			ref={ref}
-		/>
-	);
-});
+export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
+	({ variant, size, children, isLoading, isDisabled, iconOnly, ...props }, ref) => {
+		const renderChildren = (
+			values: ButtonRenderProps & {
+				defaultChildren: ReactNode | undefined;
+			}
+		) => {
+			if (isLoading) {
+				return <LoaderCircleIcon className='animate-spin' />;
+			}
+
+			if (typeof children === 'function') {
+				return children(values);
+			}
+
+			return children;
+		};
+
+		return (
+			<AriaButton
+				{...props}
+				className={composeRenderProps(props.className, (className, props) =>
+					buttonVariants({ ...props, variant, size, className, iconOnly })
+				)}
+				data-loading={isLoading ? true : undefined}
+				ref={ref}
+				isDisabled={isDisabled || isLoading}
+			>
+				{renderChildren}
+			</AriaButton>
+		);
+	}
+);
 Button.displayName = 'Button';

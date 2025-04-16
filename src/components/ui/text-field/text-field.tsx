@@ -24,7 +24,7 @@ export type TextFieldVariants = VariantProps<typeof textFieldVariants>;
 export type TextFieldSlots = keyof ReturnType<typeof textFieldVariants>;
 export type TextFieldClassNames = SlotsToClasses<TextFieldSlots>;
 
-export interface TextFieldProps extends AriaTextFieldProps {
+export interface TextFieldProps extends AriaTextFieldProps, TextFieldVariants {
 	label?: string;
 	description?: string;
 	errorMessage?: string | ((validation: ValidationResult) => string);

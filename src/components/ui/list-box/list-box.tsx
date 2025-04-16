@@ -55,14 +55,7 @@ export const ListBoxItem = (props: ListBoxItemProps) => {
 };
 
 export const dropdownItemStyles = tv({
-	base: 'group focus:bg-accent focus:text-accent-foreground relative flex w-full cursor-default items-center rounded-sm py-1.5 pr-8 pl-2 text-sm outline-none select-none disabled:pointer-events-none disabled:opacity-50',
-	compoundVariants: [
-		{
-			isFocused: false,
-			isOpen: true,
-			className: 'bg-accent',
-		},
-	],
+	base: 'focus:bg-accent focus:text-accent-foreground relative flex cursor-default items-center gap-2 rounded-sm px-2 py-1.5 text-sm transition-colors outline-none select-none disabled:pointer-events-none disabled:opacity-50 [&>svg]:size-4 [&>svg]:shrink-0',
 });
 
 export const DropdownItem = (props: ListBoxItemProps) => {

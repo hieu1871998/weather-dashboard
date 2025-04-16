@@ -1,5 +1,9 @@
-export interface GetLocationPayload {
+export interface GetLocationsPayload {
 	name: string;
+}
+
+export interface GetLocationPayload {
+	id: number;
 }
 
 export interface LocationResponse {
