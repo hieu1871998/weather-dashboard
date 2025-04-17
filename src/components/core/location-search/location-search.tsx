@@ -17,6 +17,7 @@ export const LocationSearch = ({ onChange, ...props }: LocationSearchProps) => {
 	const { data, isFetching } = useQuery({
 		queryFn: () => getLocations({ name: search }),
 		queryKey: ['location', search],
+		refetchOnWindowFocus: false,
 	});
 
 	const locations = data?.results ?? [];
