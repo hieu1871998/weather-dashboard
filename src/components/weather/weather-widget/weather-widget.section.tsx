@@ -101,6 +101,9 @@ export const WeatherWidgetSection = () => {
 			return timeToNext;
 		};
 
+		// Initial manual refresh
+		refetch();
+
 		// Setup recurring refresh function
 		const setupRecurringRefresh = () => {
 			// Perform the refetch
