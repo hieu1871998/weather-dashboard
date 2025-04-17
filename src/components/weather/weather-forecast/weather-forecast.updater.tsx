@@ -39,10 +39,6 @@ export const WeatherForecastUpdater = () => {
 			return timeToNext;
 		};
 
-		// Immediately refresh once on component mount
-		console.log(`Initial refresh at: ${new Date().toLocaleTimeString()}`);
-		revalidateWeatherForecast();
-
 		// Calculate time to next 15-minute mark
 		const timeToNext = calculateNextRefreshTime();
 

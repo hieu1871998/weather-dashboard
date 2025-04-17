@@ -5,7 +5,6 @@ import { QueryKey, StorageKey } from '@/lib/constants';
 import { getWeatherForecast } from '@/services/weather';
 import { GetWeatherForecastPayload } from '@/types/weather';
 import { reorderArray } from '@/utils/array';
-import { useClientLocalStorage } from '@/utils/use-client-storage';
 import {
 	closestCenter,
 	DndContext,
@@ -20,11 +19,12 @@ import { rectSortingStrategy, SortableContext, sortableKeyboardCoordinates } fro
 import { keepPreviousData, useQuery, useQueryClient } from '@tanstack/react-query';
 import { AnimatePresence } from 'motion/react';
 import { useEffect, useMemo, useRef } from 'react';
+import { useLocalStorage } from 'usehooks-ts';
 import { WeatherWidget } from './weather-widget';
 import { WeatherWidgetSkeleton } from './weather-widget.skeleton';
 
 export const WeatherWidgetSection = () => {
-	const [widgetPayloads, setWidgetPayloads] = useClientLocalStorage<FilterSchema[]>(StorageKey.WeatherWidgetList, []);
+	const [widgetPayloads, setWidgetPayloads] = useLocalStorage<FilterSchema[]>(StorageKey.WeatherWidgetList, []);
 	const queryClient = useQueryClient();
 
 	// Refs to track timers and initialization across re-renders
@@ -62,7 +62,10 @@ export const WeatherWidgetSection = () => {
 		queryFn: () => getWeatherForecast(payload),
 		placeholderData: keepPreviousData,
 		refetchOnWindowFocus: false,
+		enabled: widgetPayloads.length > 0,
 	});
+
+	console.log('widgetPayloads: ', widgetPayloads.length > 0);
 
 	// Setup synchronized refresh with clock time
 	useEffect(() => {
@@ -106,10 +109,6 @@ export const WeatherWidgetSection = () => {
 
 			return timeToNext;
 		};
-
-		// Initial manual refresh
-		console.log('[WeatherWidgetSection] Initial refresh at:', new Date().toLocaleTimeString());
-		refetch();
 
 		// Setup recurring refresh function
 		const setupRecurringRefresh = () => {
@@ -177,27 +176,29 @@ export const WeatherWidgetSection = () => {
 	};
 
 	return (
-		<DndContext
-			sensors={sensors}
-			collisionDetection={closestCenter}
-			onDragEnd={handleDragEnd}
-		>
-			<SortableContext
-				items={sortableItems}
-				strategy={rectSortingStrategy}
+		<>
+			{isLoading ? Array.from({ length: 4 }).map((_, index) => <WeatherWidgetSkeleton key={index} />) : null}
+			<DndContext
+				sensors={sensors}
+				collisionDetection={closestCenter}
+				onDragEnd={handleDragEnd}
 			>
-				{isLoading ? Array.from({ length: 4 }).map((_, index) => <WeatherWidgetSkeleton key={index} />) : null}
-				<AnimatePresence>
-					{forecasts.map((forecast, index) => (
-						<WeatherWidget
-							locationId={widgetPayloads[index]?.locationId}
-							key={widgetPayloads[index]?.locationId}
-							forecast={forecast}
-							currentPayload={payload}
-						/>
-					))}
-				</AnimatePresence>
-			</SortableContext>
-		</DndContext>
+				<SortableContext
+					items={sortableItems}
+					strategy={rectSortingStrategy}
+				>
+					<AnimatePresence>
+						{forecasts.map((forecast, index) => (
+							<WeatherWidget
+								locationId={widgetPayloads[index]?.locationId}
+								key={widgetPayloads[index]?.locationId}
+								forecast={forecast}
+								currentPayload={payload}
+							/>
+						))}
+					</AnimatePresence>
+				</SortableContext>
+			</DndContext>
+		</>
 	);
 };

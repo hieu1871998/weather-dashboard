@@ -7,7 +7,6 @@ import { QueryKey, StorageKey } from '@/lib/constants';
 import { getIcon } from '@/lib/icons';
 import { getLocationById } from '@/services/geocoding';
 import { DailyUnits, GetWeatherForecastPayload, WeatherForecast } from '@/types/weather';
-import { useClientLocalStorage } from '@/utils/use-client-storage';
 import { useSortable } from '@dnd-kit/sortable';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import dayjs from 'dayjs';
@@ -15,6 +14,7 @@ import { CloudRainIcon, DropletsIcon, GripVerticalIcon, TrashIcon, WindIcon } fr
 import { motion } from 'motion/react';
 import { CSSProperties } from 'react';
 import { Separator } from 'react-aria-components';
+import { useLocalStorage } from 'usehooks-ts';
 
 interface WeatherWidgetProps {
 	locationId: number;
@@ -23,7 +23,7 @@ interface WeatherWidgetProps {
 }
 
 export const WeatherWidget = ({ forecast, locationId, currentPayload }: WeatherWidgetProps) => {
-	const [, setWidgetPayloads] = useClientLocalStorage<FilterSchema[]>(StorageKey.WeatherWidgetList, []);
+	const [, setWidgetPayloads] = useLocalStorage<FilterSchema[]>(StorageKey.WeatherWidgetList, []);
 
 	const currentUnits = forecast.current_units;
 	const currentWeather = forecast.current;
@@ -65,6 +65,7 @@ export const WeatherWidget = ({ forecast, locationId, currentPayload }: WeatherW
 
 	const handleDelete = () => {
 		queryClient.setQueryData<WeatherForecast[]>([QueryKey.WeatherForecast, currentPayload], old => {
+			console.log('old: ', old);
 			if (Array.isArray(old)) {
 				return old.filter(item => item.latitude !== forecast.latitude && item.longitude !== forecast.longitude);
 			}
@@ -73,6 +74,7 @@ export const WeatherWidget = ({ forecast, locationId, currentPayload }: WeatherW
 		});
 
 		setWidgetPayloads(prev => {
+			console.log('prev: ', prev);
 			const updatedPayloads = prev.filter(item => item.locationId !== locationId);
 
 			return updatedPayloads;
@@ -92,7 +94,7 @@ export const WeatherWidget = ({ forecast, locationId, currentPayload }: WeatherW
 				ease: [0, 0.4, 0.2, 1],
 			}}
 			{...attributes}
-			className='bg-background relative flex translate-x-[var(--translate-x)] translate-y-[var(--translate-y)] flex-col gap-2 rounded-xl border pt-3 data-dragging:z-10 data-dragging:scale-105 data-dragging:shadow-lg'
+			className='bg-background relative row-span-1 flex translate-x-[var(--translate-x)] translate-y-[var(--translate-y)] flex-col gap-2 rounded-xl border pt-3 data-dragging:z-10 data-dragging:scale-105 data-dragging:shadow-lg'
 			data-dragging={isDragging ? 'true' : undefined}
 			data-over={isOver ? 'true' : undefined}
 		>
