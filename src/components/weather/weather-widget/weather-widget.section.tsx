@@ -19,7 +19,7 @@ import { rectSortingStrategy, SortableContext, sortableKeyboardCoordinates } fro
 import { keepPreviousData, useQuery, useQueryClient } from '@tanstack/react-query';
 import { AnimatePresence } from 'motion/react';
 import { useEffect, useMemo, useRef } from 'react';
-import { useLocalStorage } from 'usehooks-ts';
+import { useIsClient, useLocalStorage } from 'usehooks-ts';
 import { WeatherWidget } from './weather-widget';
 import { WeatherWidgetSkeleton } from './weather-widget.skeleton';
 
@@ -164,9 +164,14 @@ export const WeatherWidgetSection = () => {
 		setWidgetPayloads(newPayloads);
 	};
 
+	// Prevent hydration error due to mismatch between server and client rendering caused by `isLoading` being true on the server
+	const isClient = useIsClient();
+
 	return (
 		<>
-			{isLoading ? Array.from({ length: 4 }).map((_, index) => <WeatherWidgetSkeleton key={index} />) : null}
+			{isLoading && isClient
+				? Array.from({ length: 4 }).map((_, index) => <WeatherWidgetSkeleton key={index} />)
+				: null}
 			<DndContext
 				sensors={sensors}
 				collisionDetection={closestCenter}
