@@ -98,7 +98,8 @@ export const WeatherWidgetSection = () => {
 			// Convert everything to milliseconds
 			const timeToNext = minutesToNext * 60 * 1000 - seconds * 1000 - milliseconds;
 
-			return timeToNext;
+			// Add 5 seconds delay to account for server data mismatch
+			return timeToNext + 5000;
 		};
 
 		// Initial manual refresh
