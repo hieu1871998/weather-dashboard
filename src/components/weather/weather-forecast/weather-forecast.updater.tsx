@@ -31,11 +31,6 @@ export const WeatherForecastUpdater = () => {
 			// Convert everything to milliseconds
 			const timeToNext = minutesToNext * 60 * 1000 - seconds * 1000 - milliseconds;
 
-			console.log(`Current time: ${now.toLocaleTimeString()}`);
-			console.log(`Minutes to next 15-minute mark: ${minutesToNext}`);
-			console.log(`Time until next refresh: ${timeToNext}ms (${timeToNext / 1000} seconds)`);
-			console.log(`Next refresh will happen at: ${new Date(now.getTime() + timeToNext).toLocaleTimeString()}`);
-
 			return timeToNext;
 		};
 
@@ -44,23 +39,21 @@ export const WeatherForecastUpdater = () => {
 
 		// Set timeout to align with the next 15-minute mark
 		timeoutRef.current = setTimeout(() => {
-			console.log(`First aligned refresh triggered at: ${new Date().toLocaleTimeString()}`);
 			revalidateWeatherForecast();
 
 			// Once aligned, use interval that's synchronized with clock
 			intervalRef.current = setInterval(() => {
-				console.log(`Scheduled refresh at: ${new Date().toLocaleTimeString()}`);
 				revalidateWeatherForecast();
 			}, REFETCH_INTERVAL);
 		}, timeToNext);
 
 		// Clear both timeout and interval on unmount
 		return () => {
-			console.log('Component unmounting, cleaning up timers');
 			if (timeoutRef.current) {
 				clearTimeout(timeoutRef.current);
 				timeoutRef.current = null;
 			}
+
 			if (intervalRef.current) {
 				clearInterval(intervalRef.current);
 				intervalRef.current = null;

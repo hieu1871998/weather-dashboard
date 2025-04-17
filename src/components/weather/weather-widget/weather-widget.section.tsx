@@ -65,8 +65,6 @@ export const WeatherWidgetSection = () => {
 		enabled: widgetPayloads.length > 0,
 	});
 
-	console.log('widgetPayloads: ', widgetPayloads.length > 0);
-
 	// Setup synchronized refresh with clock time
 	useEffect(() => {
 		// Check if payload has changed significantly enough to warrant re-initialization
@@ -79,7 +77,6 @@ export const WeatherWidgetSection = () => {
 
 		// Clean up previous timer if it exists
 		if (timeoutRef.current) {
-			console.log('[WeatherWidgetSection] Cleaning up previous timer due to payload change');
 			clearTimeout(timeoutRef.current);
 			timeoutRef.current = null;
 		}
@@ -101,19 +98,12 @@ export const WeatherWidgetSection = () => {
 			// Convert everything to milliseconds
 			const timeToNext = minutesToNext * 60 * 1000 - seconds * 1000 - milliseconds;
 
-			// Debug info to verify timing calculations
-			console.log('[WeatherWidgetSection] Current time:', now.toLocaleTimeString());
-			console.log('[WeatherWidgetSection] Minutes to next 15-minute mark:', minutesToNext);
-			console.log('[WeatherWidgetSection] Time until next refresh:', timeToNext, 'ms');
-			console.log('[WeatherWidgetSection] Next refresh at:', new Date(now.getTime() + timeToNext).toLocaleTimeString());
-
 			return timeToNext;
 		};
 
 		// Setup recurring refresh function
 		const setupRecurringRefresh = () => {
 			// Perform the refetch
-			console.log('[WeatherWidgetSection] Performing scheduled refresh at:', new Date().toLocaleTimeString());
 			refetch();
 
 			// Calculate time to next refresh and set up next timeout
@@ -127,7 +117,6 @@ export const WeatherWidgetSection = () => {
 
 		return () => {
 			if (timeoutRef.current) {
-				console.log('[WeatherWidgetSection] Cleaning up timer on unmount');
 				clearTimeout(timeoutRef.current);
 				timeoutRef.current = null;
 			}

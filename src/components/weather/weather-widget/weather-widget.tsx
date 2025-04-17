@@ -65,7 +65,6 @@ export const WeatherWidget = ({ forecast, locationId, currentPayload }: WeatherW
 
 	const handleDelete = () => {
 		queryClient.setQueryData<WeatherForecast[]>([QueryKey.WeatherForecast, currentPayload], old => {
-			console.log('old: ', old);
 			if (Array.isArray(old)) {
 				return old.filter(item => item.latitude !== forecast.latitude && item.longitude !== forecast.longitude);
 			}
@@ -74,7 +73,6 @@ export const WeatherWidget = ({ forecast, locationId, currentPayload }: WeatherW
 		});
 
 		setWidgetPayloads(prev => {
-			console.log('prev: ', prev);
 			const updatedPayloads = prev.filter(item => item.locationId !== locationId);
 
 			return updatedPayloads;

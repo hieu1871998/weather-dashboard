@@ -28,7 +28,6 @@ export const Menu = <T extends object>({ className, ...props }: MenuProps<T>) =>
 		>
 			<AriaMenu
 				{...props}
-				onSelectionChange={keys => console.log('keys', keys)}
 				className='max-h-[inherit] overflow-auto p-1 outline-0 [clip-path:inset(0_0_0_0_round_.75rem)]'
 			/>
 		</Popover>
